@@ -1,0 +1,28 @@
+-- EDA 2: Null check leads table
+SELECT
+  COUNTIF(leads_id            IS NULL) AS null_leads_id,
+  COUNTIF(session_source_code IS NULL) AS null_session_source_code,
+  COUNTIF(industry_code       IS NULL) AS null_industry_code,
+  COUNTIF(leads_registered    IS NULL) AS null_leads_registered,
+  COUNTIF(number_of_employee  IS NULL) AS null_number_of_employee,
+  COUNT(*)                             AS total_rows
+FROM `nextproject-001.DES_SaaS.leads`
+
+-- EDA 3: Null check funnels table
+SELECT
+  COUNTIF(funnel_id  IS NULL) AS null_funnel_id,
+  COUNTIF(leads_id   IS NULL) AS null_leads_id,
+  COUNTIF(stage_id   IS NULL) AS null_stage_id,
+  COUNTIF(TimeStamp  IS NULL) AS null_timestamp,
+  COUNTIF(reason     IS NULL) AS null_reason,
+  COUNT(*)                    AS total_rows
+FROM `nextproject-001.DES_SaaS.funnel_new`
+
+-- Checking for rows contain not null for reason
+  SELECT
+  reason,
+  COUNT(*) AS total
+FROM `nextproject-001.DES_SaaS.funnel_new`
+WHERE reason IS NOT NULL
+GROUP BY reason
+ORDER BY total DESC
