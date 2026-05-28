@@ -1,0 +1,10 @@
+Make sure if there is more than one leads_id in one stage
+SELECT
+  leads_id,
+  stage_id,
+  COUNT(*) AS total_records
+FROM `nextproject-001.DES_SaaS.funnel_new`
+GROUP BY leads_id, stage_id
+HAVING COUNT(*) > 1
+ORDER BY total_records DESC
+LIMIT 20
