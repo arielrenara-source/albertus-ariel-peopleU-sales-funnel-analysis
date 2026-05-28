@@ -93,11 +93,7 @@ peopleU-sales-funnel-analysis/
 ├── README.md
 ├── deck/
 │   └── Data Exploration Sprint_Funnel Analysis_Albertus Ariel R P.pdf
-├── queries/
-│   └── funnel_analysis.sql    
-└── data/
-└── data_overview.md          
-
+├── queries  
 
 ---
 
