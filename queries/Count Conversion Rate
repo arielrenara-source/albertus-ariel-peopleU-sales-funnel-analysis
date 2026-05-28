@@ -1,0 +1,74 @@
+-- Segmentation Query 1: Conversion rate per industry
+WITH leads_with_deal AS (
+  SELECT
+    l.leads_id,
+    l.industry_code,
+    i.industry,
+    MAX(CASE WHEN f.stage_id = 108 THEN 1 ELSE 0 END) AS is_deal_won
+  FROM `nextproject-001.DES_SaaS.leads` l
+  JOIN `nextproject-001.DES_SaaS.industries` i   ON l.industry_code = i.industry_code
+  LEFT JOIN `nextproject-001.DES_SaaS.funnel_new` f ON l.leads_id = f.leads_id
+                                        AND f.TimeStamp < '2023-01-01'
+  WHERE l.leads_registered < '2023-01-01'
+  GROUP BY l.leads_id, l.industry_code, i.industry
+)
+SELECT
+  industry,
+  COUNT(*)                                          AS total_leads,
+  SUM(is_deal_won)                                  AS total_deal_won,
+  ROUND(SUM(is_deal_won) / COUNT(*) * 100, 1)       AS conversion_rate_pct
+FROM leads_with_deal
+GROUP BY industry
+ORDER BY conversion_rate_pct DESC
+
+-- Segmentation Query 2: Conversion rate per traffic source
+WITH leads_with_deal AS (
+  SELECT
+    l.leads_id,
+    l.session_source_code,
+    ss.session_source,
+    MAX(CASE WHEN f.stage_id = 108 THEN 1 ELSE 0 END) AS is_deal_won
+  FROM `nextproject-001.DES_SaaS.leads` l
+  JOIN `nextproject-001.DES_SaaS.sessions_source` ss ON l.session_source_code = ss.session_source_code
+  LEFT JOIN `nextproject-001.DES_SaaS.funnel_new` f     ON l.leads_id = f.leads_id
+                                           AND f.TimeStamp < '2023-01-01'
+  WHERE l.leads_registered < '2023-01-01'
+  GROUP BY l.leads_id, l.session_source_code, ss.session_source
+)
+SELECT
+  session_source,
+  COUNT(*)                                         AS total_leads,
+  SUM(is_deal_won)                                 AS total_deal_won,
+  ROUND(SUM(is_deal_won) / COUNT(*) * 100, 1)      AS conversion_rate_pct
+FROM leads_with_deal
+GROUP BY session_source
+ORDER BY conversion_rate_pct DESC
+
+
+-- Segmentation Query 3: Conversion rate per company size bucket
+WITH leads_with_deal AS (
+  SELECT
+    l.leads_id,
+    l.number_of_employee,
+    CASE
+      WHEN l.number_of_employee BETWEEN 1   AND 50   THEN '1 - Small (1-50)'
+      WHEN l.number_of_employee BETWEEN 51  AND 200  THEN '2 - Medium (51-200)'
+      WHEN l.number_of_employee BETWEEN 201 AND 500  THEN '3 - Large (201-500)'
+      WHEN l.number_of_employee > 500                THEN '4 - Enterprise (500+)'
+      ELSE 'Unknown'
+    END AS company_size_bucket,
+    MAX(CASE WHEN f.stage_id = 108 THEN 1 ELSE 0 END) AS is_deal_won
+  FROM `nextproject-001.DES_SaaS.leads` l
+  LEFT JOIN `nextproject-001.DES_SaaS.funnel_new` f ON l.leads_id = f.leads_id
+                                       AND f.TimeStamp < '2023-01-01'
+  WHERE l.leads_registered < '2023-01-01'
+  GROUP BY l.leads_id, l.number_of_employee
+)
+SELECT
+  company_size_bucket,
+  COUNT(*)                                         AS total_leads,
+  SUM(is_deal_won)                                 AS total_deal_won,
+  ROUND(SUM(is_deal_won) / COUNT(*) * 100, 1)      AS conversion_rate_pct
+FROM leads_with_deal
+GROUP BY company_size_bucket
+ORDER BY company_size_bucket
